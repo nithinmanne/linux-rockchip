@@ -1,6 +1,7 @@
 linux-rockchip (6.1.0-1027.27+nm2) noble; urgency=medium
 
   * Add driver for the Hynitron CST3XX touchpanel series
+  * Add driver for the Sitronix ST7789V display controller
   * Enable CONFIG_DRM_PANEL_MIPI_DBI and CONFIG_MMC_SPI, disable CONFIG_FB_TFT_ST7789V
 
  -- Nithin Manne <nithinmanne@gmail.com>  Fri, 25 Aug 2025 20:00:00 -0500
