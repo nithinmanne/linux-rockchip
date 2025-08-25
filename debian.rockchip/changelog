@@ -1,5 +1,6 @@
 linux-rockchip (6.1.0-1027.27+nm2) noble; urgency=medium
 
+  * Update bootloader check value for the Hynitron CST3XX driver
   * Add driver for the Hynitron CST3XX touchpanel series
   * Add driver for the Sitronix ST7789V display controller
   * Enable CONFIG_DRM_PANEL_MIPI_DBI and CONFIG_MMC_SPI, disable CONFIG_FB_TFT_ST7789V

@@ -55,7 +55,7 @@ struct hynitron_ts_data {
 
 #define CST3XX_BOOTLDR_PROG_CMD			0xaa01a0
 #define CST3XX_BOOTLDR_PROG_CHK_REG		0x02a0
-#define CST3XX_BOOTLDR_CHK_VAL			0xac
+#define CST3XX_BOOTLDR_CHK_VALS			{0xac, 0x55}
 
 #define CST3XX_TOUCH_DATA_PART_REG		0x00d0
 #define CST3XX_TOUCH_DATA_FULL_REG		0x07d0
@@ -206,6 +206,17 @@ static int cst3xx_firmware_info(struct i2c_client *client)
 	return 0;
 }
 
+static bool is_cst3xx_bootloader_check_value(u32 value)
+{
+	u32 chk_vals[] = CST3XX_BOOTLDR_CHK_VALS;
+
+	for (int i = 0; i < ARRAY_SIZE(chk_vals); i++) {
+		if (value == chk_vals[i])
+			return true;
+	}
+	return false;
+}
+
 static int cst3xx_bootloader_enter(struct i2c_client *client)
 {
 	int err;
@@ -231,13 +242,13 @@ static int cst3xx_bootloader_enter(struct i2c_client *client)
 			continue;
 
 		tmp = get_unaligned(buf);
-		if (tmp == CST3XX_BOOTLDR_CHK_VAL)
+		if (is_cst3xx_bootloader_check_value(tmp))
 			break;
 	}
 
-	if (tmp != CST3XX_BOOTLDR_CHK_VAL) {
-		dev_err(&client->dev, "%s unable to enter bootloader mode\n",
-			__func__);
+	if (!is_cst3xx_bootloader_check_value(tmp)) {
+		dev_err(&client->dev, "%s unable to enter bootloader mode (%x)\n",
+			__func__, tmp);
 		return -ENODEV;
 	}
 
@@ -303,7 +314,8 @@ static void cst3xx_touch_report(struct i2c_client *client)
 	if (err ||
 	    buf[6] != CST3XX_TOUCH_DATA_CHK_VAL ||
 	    buf[0] == CST3XX_TOUCH_DATA_CHK_VAL) {
-		dev_err(&client->dev, "cst3xx touch read failure\n");
+		if (!(buf[6] == CST3XX_TOUCH_DATA_CHK_VAL && buf[0] == CST3XX_TOUCH_DATA_CHK_VAL))
+			dev_err(&client->dev, "cst3xx touch read failure\n");
 		return;
 	}
 
